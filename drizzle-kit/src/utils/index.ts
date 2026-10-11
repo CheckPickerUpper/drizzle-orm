@@ -160,6 +160,10 @@ export const trimChar = (str: string, char: string | [string, string]) => {
 	return str;
 };
 
+// A plain function rather than String.prototype.snake_case: that prototype method is only installed
+// by modules the CLI loads, so code reached through the api entry points cannot rely on it.
+export const snakeCase = (it: string) => it.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
 export const splitExpressions = (input: string | null): string[] => {
 	if (!input) return [];
 

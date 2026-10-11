@@ -1,4 +1,4 @@
-import { escapeSingleQuotes, type Simplify, wrapWith } from '../../utils';
+import { escapeSingleQuotes, type Simplify, snakeCase, wrapWith } from '../../utils';
 import { defaultNameForPK, defaults, defaultToSQL, isDefaultAction, isSerialType, mapSerialToInt } from './grammar';
 import type { JsonStatement } from './statements';
 
@@ -42,7 +42,7 @@ const createViewConvertor = convertor('create_view', (st) => {
 		statement += ` WITH (`;
 		for (const [key, value] of Object.entries(withOption)) {
 			if (value === null) continue;
-			options.push(`${key.snake_case()} = ${value}`);
+			options.push(`${snakeCase(key)} = ${value}`);
 		}
 		statement += options.join(', ');
 		statement += `)`;
@@ -87,12 +87,12 @@ const alterViewConvertor = convertor('alter_view', (st) => {
 
 	const resetOptions = Object.entries(withFrom).filter(([key, val]) => {
 		return val !== null && (key in withTo ? withTo[key as keyof typeof withTo] === null : true);
-	}).map((it) => it[0].snake_case());
+	}).map((it) => snakeCase(it[0]));
 
 	const setOptions = Object.entries(withTo).filter(([key, val]) => {
 		const from = key in withFrom ? withFrom[key as keyof typeof withFrom] : null;
 		return val !== null && from !== val;
-	}).map((it) => `${it[0].snake_case()} = ${it[1]}`).join(', ');
+	}).map((it) => `${snakeCase(it[0])} = ${it[1]}`).join(', ');
 
 	if (setOptions.length > 0) statements.push(`ALTER ${viewClause} SET (${setOptions});`);
 	if (resetOptions.length > 0) statements.push(`ALTER ${viewClause} RESET (${resetOptions.join(', ')});`);
